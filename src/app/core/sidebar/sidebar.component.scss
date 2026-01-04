@@ -1,0 +1,154 @@
+/* ===== CONTAINER ===== */
+.sidenav-container {
+  height: 100vh;
+  background: #f5f6fa;
+}
+
+/* ===== SIDENAV ===== */
+mat-sidenav {
+  width: 260px;
+  background: #ffffff;
+  color: #4f46e5;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+}
+
+/* Header */
+.sidenav-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #4f46e5;
+
+  .app-name {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+}
+
+.menu-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: calc(100% - 57px);
+}
+
+/* ===== MENU ===== */
+.menu-list {
+  padding: 12px 8px;
+  flex: 1;
+}
+
+.menu-item {
+  height: 48px;
+  margin: 4px 0;
+  border-radius: 10px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+  transition: background-color 0.2s ease;
+
+  .menu-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    opacity: 0.85;
+    color: #4f46e5;
+  }
+
+  span {
+    color: #4f46e5;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Ativo */
+.menu-item.active {
+  background-color: #4f46e5;
+
+  mat-icon,
+  span {
+    opacity: 1;
+    color: #ffffff;
+  }
+}
+
+/* ===== SUBMENU ===== */
+.submenu {
+  margin-left: 12px;
+  padding-left: 8px;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.submenu-item {
+  height: 42px;
+  font-size: 13px;
+}
+
+/* ===== LOGOUT ===== */
+.logout-container {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-button {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  background-color: transparent !important;
+  color: #ef4444 !important;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: ease 0.3s;
+
+  mat-icon {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* ===== TOOLBAR ===== */
+.main-toolbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #4f46e5;
+
+  .mat-mdc-icon-button {
+    color: #4f46e5;
+  }
+}
+
+/* ===== CONTEÚDO ===== */
+.main-content {
+  padding: 24px;
+  min-height: calc(100vh - 56px);
+  background: #f5f6fa;
+}

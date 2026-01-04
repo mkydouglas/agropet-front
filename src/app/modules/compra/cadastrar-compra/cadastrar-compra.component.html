@@ -1,0 +1,168 @@
+<div class="entrada-container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-info">
+      <h2>Cadastrar Compra / Nota Fiscal</h2>
+      <span class="subtitulo">Importe a NF-e ou preencha manualmente</span>
+    </div>
+
+    <input
+      type="file"
+      (change)="onFileSelected($event)"
+      accept=".xml"
+      hidden
+      #fileInput
+    />
+
+    <button
+      class="btn-primary"
+      type="button"
+      (click)="fileInput.click()"
+      [disabled]="loading$ | async"
+    >
+      <span *ngIf="!(loading$ | async)">📄 Enviar NF-e</span>
+      <span *ngIf="(loading$ | async)">Processando...</span>
+    </button>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div
+    class="alert sucesso"
+    *ngIf="mensagem && sucesso"
+  >
+    {{ mensagem }}
+  </div>
+
+  <div
+    class="alert erro"
+    *ngIf="mensagem && !sucesso"
+  >
+    {{ mensagem }}
+  </div>
+
+  <!-- FORM -->
+  <form [formGroup]="form" class="container" >
+
+    <!-- NOTA -->
+    <div class="card">
+      <label>Número da Nota Fiscal</label>
+      <input type="text" formControlName="numeroNotaFiscal" placeholder="Número da Nota Fiscal"/>
+    </div>
+
+    <!-- FORNECEDOR -->
+    <div class="card" formGroupName="fornecedorDTO">
+      <h3>Fornecedor</h3>
+
+      <div class="autocomplete-wrapper">
+        <input
+          type="text"
+          placeholder="CNPJ"
+          formControlName="cnpj"
+          (input)="filtrarFornecedores()"
+        />
+
+        <ul *ngIf="fornecedoresFiltrados?.length" class="autocomplete">
+          <li
+            *ngFor="let f of fornecedoresFiltrados"
+            (click)="selecionarFornecedor(f)"
+          >
+            {{ f.cnpj }} | {{ f.nomeFantasia }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="grid">
+        <input placeholder="Nome Fantasia" formControlName="nomeFantasia" />
+        <input placeholder="Razão Social" formControlName="razaoSocial" />
+        <input placeholder="Telefone" formControlName="telefone" />
+      </div>
+    </div>
+
+    <!-- ITENS -->
+    <div class="card">
+      <h3>Itens Comprados</h3>
+
+      <div formArrayName="itensComprados">
+        <div
+          *ngFor="let item of itens.controls; let i = index"
+          [formGroupName]="i"
+          class="item"
+        >
+
+          <div formGroupName="produtoDTO" class="produto">
+            <label>Produto</label>
+
+            <div class="autocomplete-wrapper">
+              <input
+                type="text"
+                placeholder="Digite o nome do produto"
+                formControlName="nome"
+                (input)="filtrarProdutos(i)"
+              />
+
+              <ul *ngIf="produtosFiltrados[i]?.length" class="autocomplete">
+                <li
+                  *ngFor="let p of produtosFiltrados[i]"
+                  (click)="selecionarProduto(i, p)"
+                >
+                  {{ p.nome }}
+                </li>
+              </ul>
+            </div>
+
+            <div class="grid">
+              <input type="text" placeholder="Código do Produto" formControlName="codigo" />
+              <input type="text" placeholder="Código de Barras" formControlName="codigoBarras" />
+              <input type="number" placeholder="Preço de compra" formControlName="precoUnitarioCompra" />
+              <input type="number" placeholder="Margem" formControlName="margem" />
+              <input type="text" placeholder="Unidade" formControlName="unidadeComercial" />
+              <input type="number" placeholder="Quantidade" formControlName="quantidade" />
+            </div>
+
+            <div formGroupName="loteDTO" class="lote">
+              <label>Lote</label>
+              <div class="grid">
+                <input type="text" placeholder="Número do Lote" formControlName="numero" />
+                <input type="date" placeholder="0000-00-00" formControlName="dataFabricacao" />
+                <input type="date" placeholder="Data de Validade" formControlName="dataValidade" />
+              </div>              
+            </div>
+          </div>
+
+          <div class="acoes-item">
+            <button
+              type="button"
+              class="btn-danger"
+              (click)="removerItem(i)"
+              *ngIf="itens.length > 1 && i > 0"
+            >
+              Remover item
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="adicionarItem()"
+        [disabled]="loading$ | async"
+      >
+        + Adicionar Item
+      </button>
+    </div>
+
+    <div class="acoes-form">
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="salvar()"
+        [disabled]="loading$ | async"
+      >
+        💾 Salvar Compra
+      </button>
+    </div>
+    
+  </form>
+</div>

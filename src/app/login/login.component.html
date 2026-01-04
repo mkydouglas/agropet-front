@@ -1,0 +1,29 @@
+<div class="login-container">
+    <form [formGroup]="form" (ngSubmit)="login()" class="login-card">
+  
+      <h1>Bem-vindo 👋</h1>
+      <p>Faça login para continuar</p>
+  
+      <div class="field">
+        <label>CPF</label>
+        <input type="text" formControlName="cpf" placeholder="Digite seu CPF" />
+        <small *ngIf="form.controls.cpf.touched && form.controls.cpf.invalid">
+          CPF é obrigatório
+        </small>
+      </div>
+  
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" formControlName="senha" placeholder="Digite sua senha" />
+        <small *ngIf="form.controls.senha.touched && form.controls.senha.invalid">
+          Senha é obrigatória
+        </small>
+      </div>
+  
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Entrando...' : 'Entrar' }}
+      </button>
+  
+      <span class="error" *ngIf="error">{{ error }}</span>
+    </form>
+</div>  
