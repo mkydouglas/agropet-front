@@ -1,6 +1,6 @@
 export interface CadastrarCompraCommand {
     numeroNotaFiscal: string | null;
-    fornecedorDTO: FornecedorDTO;
+    fornecedor: FornecedorDTO;
     itensComprados: ItensComprados[];
 }
 
@@ -13,7 +13,10 @@ export interface FornecedorDTO {
 }
 
 export interface ItensComprados {
-    produtoDTO: ProdutoDTO;
+    produto: ProdutoDTO;
+    quantidade: number;
+    precoUnitarioCompra: number;
+    lote: LoteDTO | null;
 }
 
 export interface ProdutoDTO {
@@ -22,16 +25,12 @@ export interface ProdutoDTO {
     codigo: string | null;
     codigoBarras: string;
     margem: number;
-    precoUnitarioCompra: number;
     unidadeComercial: string | null;
-    quantidade: number;
-    loteDTO: LoteDTO | null;
 }
 
 export interface LoteDTO {
     id: number | null;
     numero: string | null;
-    quantidade: number | null;
     dataFabricacao: string | null;
     dataValidade: string | null;
 }

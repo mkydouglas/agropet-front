@@ -31,4 +31,26 @@ export class AuthService {
     const token = localStorage.getItem('agropet_token');
     return !!token;
   }
+
+  isLoggedIn(): boolean {
+    const token = this.token;
+
+    if (!token) return false;
+
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+
+    return true;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return Date.now() > payload.exp * 1000;
+    } catch {
+      return true;
+    }
+  }
 }

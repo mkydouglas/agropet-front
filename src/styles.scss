@@ -3,16 +3,17 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.meu-toast-sucesso {
-    background-color: #4caf50;
-    color: white;
-}
-
-.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {
-    background-color: #f44336!important;
-    color: white;
-}
-
 .mdc-list-item__primary-text {
     display: flex;
 }
+
+.toast-sucesso.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #2e7d32 !important;
+    color: #fff !important;
+  }
+  
+  .toast-erro.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #c62828 !important;
+    color: #fff !important;
+  }
+  

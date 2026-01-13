@@ -1,6 +1,6 @@
 import { HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { finalize } from "rxjs";
+import { catchError, finalize, throwError } from "rxjs";
 import { LoadingService } from "../services/loading.service";
 
 @Injectable()

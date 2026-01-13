@@ -1,5 +1,4 @@
 <div class="entrada-container">
-
   <!-- HEADER -->
   <div class="header">
     <div class="header-info">
@@ -22,45 +21,40 @@
       [disabled]="loading$ | async"
     >
       <span *ngIf="!(loading$ | async)">📄 Enviar NF-e</span>
-      <span *ngIf="(loading$ | async)">Processando...</span>
+      <span *ngIf="loading$ | async">Processando...</span>
     </button>
   </div>
 
-  <!-- FEEDBACK -->
-  <div
-    class="alert sucesso"
-    *ngIf="mensagem && sucesso"
-  >
-    {{ mensagem }}
-  </div>
-
-  <div
-    class="alert erro"
-    *ngIf="mensagem && !sucesso"
-  >
-    {{ mensagem }}
-  </div>
-
   <!-- FORM -->
-  <form [formGroup]="form" class="container" >
-
+  <form [formGroup]="form" class="container">
     <!-- NOTA -->
     <div class="card">
       <label>Número da Nota Fiscal</label>
-      <input type="text" formControlName="numeroNotaFiscal" placeholder="Número da Nota Fiscal"/>
+      <input
+        type="text"
+        formControlName="numeroNotaFiscal"
+        placeholder="Número da Nota Fiscal"
+      />
     </div>
 
     <!-- FORNECEDOR -->
-    <div class="card" formGroupName="fornecedorDTO">
+    <div class="card" formGroupName="fornecedor">
       <h3>Fornecedor</h3>
 
       <div class="autocomplete-wrapper">
+        <label>CNPJ</label>
         <input
           type="text"
           placeholder="CNPJ"
           formControlName="cnpj"
+          mask="00.000.000/0000-00"
+          [dropSpecialCharacters]="true"
           (input)="filtrarFornecedores()"
         />
+
+        <small class="error" *ngIf="isInvalid('fornecedor.cnpj')">
+          CNPJ é obrigatório
+        </small>
 
         <ul *ngIf="fornecedoresFiltrados?.length" class="autocomplete">
           <li
@@ -73,9 +67,28 @@
       </div>
 
       <div class="grid">
-        <input placeholder="Nome Fantasia" formControlName="nomeFantasia" />
-        <input placeholder="Razão Social" formControlName="razaoSocial" />
-        <input placeholder="Telefone" formControlName="telefone" />
+        <div>
+          <label>Nome Fantasia</label>
+          <input placeholder="Nome Fantasia" formControlName="nomeFantasia" />
+          <small class="error" *ngIf="isInvalid('fornecedor.nomeFantasia')">
+            Nome Fantasia é obrigatório
+          </small>
+        </div>
+      
+        <div>
+          <label>Razão Social</label>
+          <input placeholder="Razão Social" formControlName="razaoSocial" />
+        </div>
+
+        <div>
+          <label>Telefone</label>
+          <input
+            placeholder="Telefone"
+            formControlName="telefone"
+            mask="(00) 00000-0000"
+            [dropSpecialCharacters]="true"
+          />
+        </div>
       </div>
     </div>
 
@@ -89,17 +102,23 @@
           [formGroupName]="i"
           class="item"
         >
-
-          <div formGroupName="produtoDTO" class="produto">
-            <label>Produto</label>
+          <div formGroupName="produto" class="produto">
+            <label class="produto-label">Produto</label>
 
             <div class="autocomplete-wrapper">
+              <label>Nome do Produto</label>
               <input
                 type="text"
                 placeholder="Digite o nome do produto"
                 formControlName="nome"
                 (input)="filtrarProdutos(i)"
               />
+              <small
+                class="error"
+                *ngIf="item.get('produto.nome')?.invalid 
+                      && item.get('produto.nome')?.touched">
+                Nome do Produto é obrigatório
+              </small>
 
               <ul *ngIf="produtosFiltrados[i]?.length" class="autocomplete">
                 <li
@@ -112,21 +131,99 @@
             </div>
 
             <div class="grid">
-              <input type="text" placeholder="Código do Produto" formControlName="codigo" />
-              <input type="text" placeholder="Código de Barras" formControlName="codigoBarras" />
-              <input type="number" placeholder="Preço de compra" formControlName="precoUnitarioCompra" />
-              <input type="number" placeholder="Margem" formControlName="margem" />
-              <input type="text" placeholder="Unidade" formControlName="unidadeComercial" />
-              <input type="number" placeholder="Quantidade" formControlName="quantidade" />
+              <div>
+                <label>Código do Produto</label>
+                <input placeholder="Código do Produto" formControlName="codigo" />
+              </div>
+            
+              <div>
+                <label>Código de Barras</label>
+                <input placeholder="Código de Barras" formControlName="codigoBarras" />
+                <small
+                  class="error"
+                  *ngIf="item.get('produto.codigoBarras')?.invalid 
+                        && item.get('produto.codigoBarras')?.touched">
+                  Código de Barras é obrigatório
+                </small>
+              </div>
+            
+              <div>
+                <label>Margem</label>
+                <input
+                  type="text"
+                  placeholder="Margem"
+                  formControlName="margem"
+                  maxlength="4"
+                  mask="separator.2"
+                  suffix="%"
+                  [dropSpecialCharacters]="true"
+                />
+              </div>
+              <div>
+                <label>Unidade Comercial</label>
+                <input placeholder="Unidade" formControlName="unidadeComercial" />
+              </div>
             </div>
+          </div>
 
-            <div formGroupName="loteDTO" class="lote">
-              <label>Lote</label>
-              <div class="grid">
-                <input type="text" placeholder="Número do Lote" formControlName="numero" />
-                <input type="date" placeholder="0000-00-00" formControlName="dataFabricacao" />
-                <input type="date" placeholder="Data de Validade" formControlName="dataValidade" />
-              </div>              
+          <div class="grid">
+            <div>
+              <label>Preço de compra</label>
+              <input
+                type="text"
+                placeholder="Preço de compra"
+                formControlName="precoUnitarioCompra"
+                mask="separator.2"
+                prefix="R$ "
+                thousandSeparator="."
+                decimalMarker=","
+                [dropSpecialCharacters]="true"
+              />
+              <small
+                class="error"
+                *ngIf="item.get('precoUnitarioCompra')?.invalid 
+                      && item.get('precoUnitarioCompra')?.touched">
+                Preço de compra é obrigatório
+              </small>
+            </div>
+  
+            <div>
+              <label>Quantidade Comprada</label>
+              <input type="number" placeholder="Quantidade Comprada" formControlName="quantidade" />
+              <small
+                class="error"
+                *ngIf="item.get('quantidade')?.invalid 
+                      && item.get('quantidade')?.touched">
+                Quantidade Comprada é obrigatório
+              </small>
+            </div>
+          </div>          
+
+          <div formGroupName="lote" class="lote">
+            <label class="lote-label">Lote</label>
+            <div class="grid">
+              <div>
+                <label>Número do Lote</label>
+                <input placeholder="Número do Lote" formControlName="numero" />
+              </div>
+          
+              <div>
+                <label>Data de fabricação</label>
+                <input
+                  type="date"
+                  lang="pt-BR"
+                  formControlName="dataFabricacao"
+                />
+              </div>
+          
+              <div>
+                <label>Data de Validade</label>
+                <input
+                  type="date"
+                  lang="pt-BR"
+                  formControlName="dataValidade"
+                />
+              </div>
             </div>
           </div>
 
@@ -163,6 +260,5 @@
         💾 Salvar Compra
       </button>
     </div>
-    
   </form>
 </div>

@@ -11,6 +11,13 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { LoadingService } from '../../../core/services/loading.service';
 import { Observable } from 'rxjs';
 import { CadastrarCompraCommand } from '../models/cadastrar-compra';
+import { ToastService } from '../../../core/services/toast.service';
+import { NgxMaskDirective } from 'ngx-mask';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-cadastrar-compra',
@@ -18,7 +25,12 @@ import { CadastrarCompraCommand } from '../models/cadastrar-compra';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgxMaskDirective,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './cadastrar-compra.component.html',
   styleUrl: './cadastrar-compra.component.scss'
@@ -37,20 +49,21 @@ export class CadastrarCompraComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    public loadingService: LoadingService
+    public loadingService: LoadingService,
+    private toast: ToastService
   ) {
     this.loading$ = loadingService.loading$;
   }
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      numeroNotaFiscal: ['', Validators.required],
-      fornecedorDTO: this.fb.group({
+      numeroNotaFiscal: [''],
+      fornecedor: this.fb.group({
         id: [null],
-        cnpj: [''],
-        nomeFantasia: [''],
+        cnpj: ['', [Validators.required, Validators.minLength(14)]],
+        nomeFantasia: ['', [Validators.required]],
         razaoSocial: [''],
-        telefone: ['']
+        telefone: ['', [Validators.minLength(10)]],
       }),
       itensComprados: this.fb.array([])
     });
@@ -59,8 +72,8 @@ export class CadastrarCompraComponent implements OnInit {
     this.carregarProdutos();
     this.carregarFornecedores();
 
-    this.form.get('fornecedorDTO.cnpj')?.valueChanges.subscribe(() => {
-      const fornecedorForm = this.form.get('fornecedorDTO') as FormGroup;
+    this.form.get('fornecedor.cnpj')?.valueChanges.subscribe(() => {
+      const fornecedorForm = this.form.get('fornecedor') as FormGroup;
     
       if (!fornecedorForm.get('cnpj')?.value) {
         fornecedorForm.patchValue({
@@ -84,26 +97,26 @@ export class CadastrarCompraComponent implements OnInit {
 
   adicionarItem(): void {
     const itemForm = this.fb.group({
-      produtoDTO: this.fb.group({
+      produto: this.fb.group({
         id: [null],
-        nome: [''],
+        nome: ['', [Validators.required]],
         codigo: [''],
-        codigoBarras: [''],
-        precoUnitarioCompra: [null],
+        codigoBarras: ['', Validators.required],
         margem: [null],
-        unidadeComercial: [null],
-        quantidade: [null],
-        loteDTO: this.fb.group({
-          numero: [''],
-          dataFabricacao: [null],
-          dataValidade: [null]
-        })
+        unidadeComercial: [null, Validators.required],
       }),
+      precoUnitarioCompra: [null, Validators.required],
+      quantidade: [null, Validators.required],
+      lote: this.fb.group({
+        numero: [''],
+        dataFabricacao: [null],
+        dataValidade: [null]
+      })
     });
 
     itemForm.get('produto.nome')?.valueChanges.subscribe(() => {
-      const produtoForm = itemForm.get('produtoDTO') as FormGroup;
-      const loteForm = itemForm.get('produtoDTO.loteDTO') as FormGroup;
+      const produtoForm = itemForm.get('produto') as FormGroup;
+      const loteForm = itemForm.get('lote') as FormGroup;
 
       if (!produtoForm.get('nome')?.value) {
         produtoForm.patchValue({
@@ -111,11 +124,11 @@ export class CadastrarCompraComponent implements OnInit {
           codigo: null,
           codigoBarras: null,
           margem: null,
-          precoUnitarioCompra: null,
-          unidadeComercial: null,
-          quantidade: null
+          unidadeComercial: null
         });
 
+        itemForm.get('precoUnitarioCompra')?.setValue(null)
+        itemForm.get('quantidade')?.setValue(null)
         loteForm.reset();
 
         produtoForm.get('codigo')?.enable();
@@ -135,7 +148,7 @@ export class CadastrarCompraComponent implements OnInit {
   }
 
   filtrarProdutos(index: number): void {
-    const nome = this.itens.at(index).get('produtoDTO.nome')?.value?.toLowerCase();
+    const nome = this.itens.at(index).get('produto.nome')?.value?.toLowerCase();
 
     if (!nome) {
       this.produtosFiltrados[index] = [];
@@ -149,7 +162,7 @@ export class CadastrarCompraComponent implements OnInit {
   }
 
   selecionarProduto(index: number, produto: any): void {
-    const produtoForm = this.itens.at(index).get('produtoDTO') as FormGroup;
+    const produtoForm = this.itens.at(index).get('produto') as FormGroup;
 
     produtoForm.patchValue({
       id: produto.id,
@@ -179,7 +192,7 @@ export class CadastrarCompraComponent implements OnInit {
   }
 
   filtrarFornecedores(): void {
-    const cnpjDigitado = this.form.get('fornecedorDTO.cnpj')?.value;
+    const cnpjDigitado = this.form.get('fornecedor.cnpj')?.value;
   
     if (!cnpjDigitado) {
       this.fornecedoresFiltrados = [];
@@ -191,7 +204,7 @@ export class CadastrarCompraComponent implements OnInit {
   }
 
   selecionarFornecedor(fornecedor: any): void {
-    const fornecedorForm = this.form.get('fornecedorDTO') as FormGroup;
+    const fornecedorForm = this.form.get('fornecedor') as FormGroup;
 
     fornecedorForm.enable({ emitEvent: false });
   
@@ -231,13 +244,11 @@ export class CadastrarCompraComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          this.sucesso = res.success;
-          this.mensagem = res.message;
+          this.toast.sucesso(res.message);
           input.value = '';
         },
         error: (err) => {
-          this.sucesso = false;
-          this.mensagem = err.error.message;
+          this.toast.erro(err.error.message);
           input.value = '';
         }
       });
@@ -246,16 +257,15 @@ export class CadastrarCompraComponent implements OnInit {
   salvar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.erro('Preencha todos os campos obrigatórios');
       return;
     }
   
     this.mensagem = '';
     let request = this.form.getRawValue() as CadastrarCompraCommand
-    for(const item of request.itensComprados){
-      if(item.produtoDTO.loteDTO?.numero)
-        item.produtoDTO.loteDTO.quantidade = item.produtoDTO.quantidade;
-    }
-
+    request.itensComprados.forEach(ic => {
+      ic.lote = this.normalizarLote(ic.lote)
+    })
     console.log(request);
     
   
@@ -266,13 +276,34 @@ export class CadastrarCompraComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          this.sucesso = res.success;
-          this.mensagem = res.message;
+          this.toast.sucesso(res.message);
+          this.form.reset();
         },
-        error: () => {
-          this.sucesso = false;
-          this.mensagem = 'Erro ao salvar a compra.';
+        error: (err) => {
+          this.toast.erro(err.error.message);
         }
       });
+  }
+
+  isInvalid(path: string): boolean {
+    const control = this.form.get(path);
+    return !!(
+      control &&
+      control.invalid &&
+      (control.touched || control.dirty)
+    );
+  }
+  
+  private normalizarLote(lote: any) {
+    if (!lote) return null;
+  
+    const { numero, dataFabricacao, dataValidade } = lote;
+  
+    const todosVazios =
+      !numero &&
+      !dataFabricacao &&
+      !dataValidade;
+  
+    return todosVazios ? null : lote;
   }  
 }

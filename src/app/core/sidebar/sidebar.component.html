@@ -7,6 +7,18 @@
 
     <div class="menu-wrapper">
       <mat-nav-list class="menu-list">
+  
+        <!-- Venda -->
+        <mat-list-item
+          class="menu-item"
+          routerLink="/venda"
+          routerLinkActive="active"
+        >
+          <div class="menu-left">
+            <mat-icon>point_of_sale</mat-icon>
+            <span>Vender</span>
+          </div>
+        </mat-list-item>
 
         <!-- Compras -->
         <mat-list-item class="menu-item" (click)="alternarSubmenu()">
@@ -26,20 +38,7 @@
             <mat-icon>add_circle_outline</mat-icon>
             <span>Cadastrar</span>
           </mat-list-item>
-        </div>
-  
-        <!-- Venda -->
-        <mat-list-item
-          class="menu-item"
-          routerLink="/venda"
-          routerLinkActive="active"
-        >
-          <div class="menu-left">
-            <mat-icon>point_of_sale</mat-icon>
-            <span>Vender</span>
-          </div>
-        </mat-list-item>
-  
+        </div>  
       </mat-nav-list>
   
       <!-- Logout -->
