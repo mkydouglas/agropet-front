@@ -40,19 +40,21 @@ export class VendaComponent implements OnInit {
       produtoForm: this.fb.group({
         produtoBusca: [''],
         produto: [null, Validators.required],
-        quantidade: [1, [Validators.required, Validators.min(1)]]
+        quantidade: [null, [Validators.required, Validators.min(1)]]
       })
     });
   }
 
   ngOnInit(): void {
-    this.http.get<any[]>('http://localhost:5278/api/Produto/listar').subscribe(data => {
-      this.produtos = data;
+    this.http.get<any>('https://localhost:7280/api/v1/Produto/listar').subscribe(data => {
+      console.log(data);
+      
+      this.produtos = data.data;
       this.setupProdutoFiltro();
     });
 
-    this.http.get<any[]>('http://localhost:5278/api/FormaPagamento/listar')
-      .subscribe(data => this.formasPagamento = data);
+    // this.http.get<any[]>('https://localhost:7280/api/v1/FormaPagamento/listar')
+    //   .subscribe(data => this.formasPagamento = data);
   }
 
   setupProdutoFiltro(): void {
@@ -101,7 +103,7 @@ export class VendaComponent implements OnInit {
       valorPago: [produtoSelecionado.precoVenda * quantidade]
     }));
 
-    this.produtoForm.reset({ produto: null, produtoBusca: '', quantidade: 1 });
+    this.produtoForm.reset({ produto: null, produtoBusca: '', quantidade: null });
     this.setupProdutoFiltro();
   }
 
@@ -149,6 +151,6 @@ export class VendaComponent implements OnInit {
       }))
     };
 
-    this.http.post('http://localhost:5278/api/venda', payload).subscribe();
+    this.http.post('https://localhost:7280/api/v1/venda', payload).subscribe();
   }
 }

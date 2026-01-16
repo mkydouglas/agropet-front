@@ -1,0 +1,30 @@
+<div class="page">
+  <h1>Configurações do Sistema</h1>
+
+  <div class="card" *ngFor="let cfg of configuracoes">
+    <form [formGroup]="forms[cfg.id]" (ngSubmit)="salvar(cfg)">
+      <div class="row">
+        <div class="field">
+          <label>Configuração</label>
+          <input type="text" [value]="cfg.nome" disabled />
+        </div>
+
+        <div class="field">
+          <label>Valor</label>
+          <input
+            type="text"
+            formControlName="valor"
+            maxlength="4"
+            mask="separator.2"
+            suffix="%"
+            [dropSpecialCharacters]="true"
+          />
+        </div>
+
+        <div class="actions">
+          <button type="submit" [disabled]="loading$ | async">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

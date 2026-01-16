@@ -1,5 +1,4 @@
 <mat-sidenav-container class="sidenav-container">
-
   <mat-sidenav #sidenav mode="side" [(opened)]="menuAberto">
     <div class="sidenav-header">
       <span class="app-name">Agropet</span>
@@ -7,7 +6,6 @@
 
     <div class="menu-wrapper">
       <mat-nav-list class="menu-list">
-  
         <!-- Venda -->
         <mat-list-item
           class="menu-item"
@@ -27,7 +25,7 @@
             <span>Compras</span>
           </div>
         </mat-list-item>
-  
+
         <!-- Submenu -->
         <div *ngIf="cadastrarAberto" class="submenu">
           <mat-list-item
@@ -38,9 +36,31 @@
             <mat-icon>add_circle_outline</mat-icon>
             <span>Cadastrar</span>
           </mat-list-item>
-        </div>  
+        </div>
+
+        <mat-list-item
+          class="menu-item"
+          routerLink="/produto"
+          routerLinkActive="active"
+        >
+          <div class="menu-left">
+            <mat-icon>inventory_2</mat-icon>
+            <span>Produtos</span>
+          </div>
+        </mat-list-item>
+
+        <mat-list-item
+          class="menu-item"
+          routerLink="/configuracoes"
+          routerLinkActive="active"
+        >
+          <div class="menu-left">
+            <mat-icon>settings</mat-icon>
+            <span>Configurações</span>
+          </div>
+        </mat-list-item>
       </mat-nav-list>
-  
+
       <!-- Logout -->
       <div class="logout-container">
         <button mat-flat-button class="logout-button" (click)="logout()">
@@ -63,5 +83,4 @@
       <ng-content></ng-content>
     </div>
   </mat-sidenav-content>
-
 </mat-sidenav-container>

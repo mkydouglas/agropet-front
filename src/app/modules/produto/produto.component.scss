@@ -1,0 +1,81 @@
+.page {
+  padding: 16px;
+}
+
+.header h1 {
+  margin-bottom: 16px;
+}
+
+/* Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Card */
+.product-card {
+  padding: 16px;
+  border-radius: 16px;
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-header .title {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Body */
+.card-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+/* Readonly */
+.readonly {
+  background: #f5f6f8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.readonly .label {
+  color: #777;
+  display: block;
+  font-size: 0.7rem;
+}
+
+.readonly .value {
+  font-weight: 500;
+}
+
+.mat-icon {
+  color: #4f46e5;
+}
+
+.product-card button:disabled mat-icon {
+  color: #bdbdbd;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .card-body mat-form-field {
+    grid-column: span 1;
+  }
+}

@@ -1,0 +1,91 @@
+<mat-card class="page">
+  <div class="header">
+    <h1>Produtos</h1>
+  </div>
+
+  <form [formGroup]="form">
+    <div formArrayName="produtos" class="product-grid">
+      <mat-card
+        class="product-card"
+        *ngFor="let grupo of produtos.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <div class="card-header">
+          <span class="title">
+            {{ grupo.value.nome || "Novo Produto" }}
+          </span>
+
+          <button
+            mat-icon-button
+            color="primary"
+            matTooltip="Salvar alterações"
+            [disabled]="produtos.at(i).invalid"
+            (click)="salvar(i)"
+          >
+            <mat-icon>save</mat-icon>
+          </button>
+        </div>
+
+        <div class="card-body">
+          <!-- Nome -->
+          <mat-form-field appearance="outline">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="nome" />
+          </mat-form-field>
+
+          <!-- Código -->
+          <mat-form-field appearance="outline">
+            <mat-label>Código</mat-label>
+            <input matInput formControlName="codigo" />
+          </mat-form-field>
+
+          <!-- Código de Barras -->
+          <mat-form-field appearance="outline">
+            <mat-label>Código de Barras</mat-label>
+            <input matInput formControlName="codigoBarras" />
+          </mat-form-field>
+
+          <!-- Margem -->
+          <mat-form-field appearance="outline">
+            <mat-label>Margem (%)</mat-label>
+            <input matInput maxlength="4" formControlName="margem" mask="separator.2" />
+          </mat-form-field>
+
+          <!-- Preço -->
+          <mat-form-field appearance="outline">
+            <mat-label>Preço de Venda</mat-label>
+            <input
+              matInput
+              formControlName="precoVenda"
+              mask="separator.2"
+              thousandSeparator="."
+              decimalMarker=","
+            />
+          </mat-form-field>
+
+          <!-- Unidade -->
+          <mat-form-field appearance="outline">
+            <mat-label>Unidade Comercial</mat-label>
+            <input matInput formControlName="unidadeComercial" />
+          </mat-form-field>
+
+          <!-- Estoque -->
+          <div class="readonly">
+            <span class="label">Estoque</span>
+            <span class="value">
+              {{ grupo.value.quantidadeProduto }}
+            </span>
+          </div>
+
+          <!-- Fornecedores -->
+          <div class="readonly">
+            <span class="label">Fornecedores</span>
+            <span class="value">
+              {{ grupo.value.nomeFantasiaFornecedores?.join(", ") || "—" }}
+            </span>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </form>
+</mat-card>
