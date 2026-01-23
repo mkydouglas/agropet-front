@@ -1,0 +1,25 @@
+.produtos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .entrada-pdv {
+    width: 100%;
+  }
+  
+  .produtos-table {
+    width: 100%;
+    border-collapse: collapse;
+  
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+  
+    th {
+      text-align: left;
+      font-weight: 600;
+    }
+  }
+  

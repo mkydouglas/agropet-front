@@ -1,0 +1,24 @@
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+export function valorPagamentoValidator(
+  getTotal: () => number
+): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.parent) return null;
+
+    const valor = control.value;
+    const forma = control.parent.get('idFormaPagamento')?.value;
+
+    if (valor == null) return null;
+
+    const totalVenda = getTotal();
+
+    const ehDinheiro = forma === 'DINHEIRO'; // ou ID, ex: 1
+
+    if (!ehDinheiro && valor > totalVenda) {
+      return { valorMaiorQueTotal: true };
+    }
+
+    return null;
+  };
+}

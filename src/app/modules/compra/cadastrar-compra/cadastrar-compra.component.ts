@@ -266,8 +266,6 @@ export class CadastrarCompraComponent implements OnInit {
     request.itensComprados.forEach(ic => {
       ic.lote = this.normalizarLote(ic.lote)
     })
-    console.log(request);
-    
   
     this.http
       .post<any>(

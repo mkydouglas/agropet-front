@@ -1,0 +1,51 @@
+.pagamento-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .formas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .valores {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .forma-valor {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  
+    .nome {
+      width: 150px;
+      font-weight: 500;
+    }
+  
+    mat-form-field {
+      width: 200px;
+    }
+  }
+  
+  .resumo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .diferenca {
+    font-weight: bold;
+  
+    &.negativo {
+      color: #c62828;
+    }
+  
+    &.positivo {
+      color: #2e7d32;
+    }
+  }
+  

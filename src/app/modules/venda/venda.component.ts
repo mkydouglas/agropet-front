@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatOptionModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
-import { Observable, map, startWith } from 'rxjs';
+
+import { VendaProdutosComponent } from './components/venda-produtos/venda-produtos.component';
+import { VendaPagamentoComponent } from './components/venda-pagamento/venda-pagamento.component';
+import { HttpClient } from '@angular/common/http';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-venda',
@@ -16,141 +21,112 @@ import { Observable, map, startWith } from 'rxjs';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    HttpClientModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatOptionModule,
-    MatIconModule,
-    MatButtonModule
+    MatStepperModule,
+    MatButtonModule,
+    VendaProdutosComponent,
+    VendaPagamentoComponent
   ],
   templateUrl: './venda.component.html',
   styleUrls: ['./venda.component.scss']
 })
-export class VendaComponent implements OnInit {
-  produtos: any[] = [];
-  produtosFiltrados$: Observable<any[]> = new Observable();
-  formasPagamento: any[] = [];
+export class VendaComponent {
+
   vendaForm: FormGroup;
 
-  constructor(private http: HttpClient, private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private toast: ToastService) {
     this.vendaForm = this.fb.group({
-      produtosSelecionados: this.fb.array([]),
-      formasPagamentoSelecionadas: this.fb.array([]),
-      produtoForm: this.fb.group({
-        produtoBusca: [''],
-        produto: [null, Validators.required],
-        quantidade: [null, [Validators.required, Validators.min(1)]]
+      produtos: this.fb.array([], Validators.required),
+      pagamento: this.fb.group({
+        formas: this.fb.array([], Validators.required),
+        totalPago: [0]
       })
     });
   }
 
-  ngOnInit(): void {
-    this.http.get<any>('https://localhost:7280/api/v1/Produto/listar').subscribe(data => {
-      console.log(data);
-      
-      this.produtos = data.data;
-      this.setupProdutoFiltro();
-    });
+  /** ===== GETTERS ===== */
 
-    // this.http.get<any[]>('https://localhost:7280/api/v1/FormaPagamento/listar')
-    //   .subscribe(data => this.formasPagamento = data);
+  get produtos(): FormArray {
+    return this.vendaForm.get('produtos') as FormArray;
   }
 
-  setupProdutoFiltro(): void {
-    this.produtosFiltrados$ = this.produtoForm.get('produtoBusca')!.valueChanges.pipe(
-      startWith(''),
-      map(valor => typeof valor === 'string' ? this.filtrarProdutos(valor) : this.produtos)
-    );
+  get pagamentoForm(): FormGroup {
+    return this.vendaForm.get('pagamento') as FormGroup;
   }
 
-  displayProduto(prod: any): string {
-    return prod ? `${prod.codigoBarras} - ${prod.nome}` : '';
-  }
-
-  filtrarProdutos(valor: string): any[] {
-    const filtro = valor.toLowerCase();
-    return this.produtos.filter(p =>
-      p.nome.toLowerCase().includes(filtro) ||
-      p.codigoBarras.toString().includes(filtro)
-    );
-  }
-
-  get produtosSelecionados(): FormArray {
-    return this.vendaForm.get('produtosSelecionados') as FormArray;
-  }
-
-  get formasPagamentoSelecionadas(): FormArray {
-    return this.vendaForm.get('formasPagamentoSelecionadas') as FormArray;
-  }
-
-  get produtoForm(): FormGroup {
-    return this.vendaForm.get('produtoForm') as FormGroup;
-  }
-
-  adicionarProduto(): void {
-    const produtoSelecionado = this.produtoForm.value.produto;
-    const quantidade = this.produtoForm.value.quantidade;
-
-    if (!produtoSelecionado || quantidade <= 0) return;
-
-    this.produtosSelecionados.push(this.fb.group({
-      idProduto: [produtoSelecionado.id],
-      codigoBarras: [produtoSelecionado.codigoBarras],
-      nome: [produtoSelecionado.nome],
-      precoProduto: [produtoSelecionado.precoVenda],
-      quantidade: [quantidade],
-      valorPago: [produtoSelecionado.precoVenda * quantidade]
-    }));
-
-    this.produtoForm.reset({ produto: null, produtoBusca: '', quantidade: null });
-    this.setupProdutoFiltro();
-  }
-
-  removerProduto(index: number): void {
-    this.produtosSelecionados.removeAt(index);
-  }
+  /** ===== DERIVADOS ===== */
 
   get valorTotal(): number {
-    return this.produtosSelecionados.controls.reduce((acc, ctrl) => {
-      return acc + ctrl.value.valorPago;
+    return this.produtos.controls.reduce((total, ctrl) => {
+      return total + ctrl.value.valorTotal;
     }, 0);
   }
 
-  toggleFormaPagamento(forma: any): void {
-    const idx = this.formasPagamentoSelecionadas.controls.findIndex(ctrl => ctrl.value.idFormaPagamento === forma.id);
-    if (idx > -1) {
-      this.formasPagamentoSelecionadas.removeAt(idx);
-    } else {
-      const total = this.formasPagamentoSelecionadas.length === 0 ? this.valorTotal : 0;
-      this.formasPagamentoSelecionadas.push(this.fb.group({
-        idFormaPagamento: [forma.id],
-        nome: [forma.nome],
-        valorPago: [total, Validators.required]
-      }));
-    }
+  get vendaValida(): boolean {
+    if (this.vendaForm.invalid) return false;
+
+    const totalPago = this.pagamentoForm.get('totalPago')?.value || 0;
+
+    if (this.produtos.length === 0) return false;
+    if (totalPago < this.valorTotal) return false;
+
+    return true;
   }
 
-  getValorPagoControl(ctrl: any) {
-    return ctrl.get('valorPago');
+  /** ===== CALLBACKS DOS FILHOS ===== */
+
+  onProdutoAdicionado(produtoForm: FormGroup) {
+    this.produtos.push(produtoForm);
   }
 
-  enviarVenda(): void {
-    const payload = {
-      produtoVendaDTOs: this.produtosSelecionados.value.map((p: any) => ({
+  onProdutoRemovido(index: number) {
+    this.produtos.removeAt(index);
+  }
+
+  finalizarVenda() {
+    if (!this.vendaValida) return;
+
+    const venda = {
+      produtos: this.produtos.value,
+      pagamento: this.pagamentoForm.value,
+      valorTotal: this.valorTotal
+    };
+
+    const payload = this.mapearPayload();
+
+    this.http.post<any>('https://localhost:7280/api/v1/venda', payload).subscribe({
+      next: (res) => {
+        this.toast.sucesso(res.message);
+        this.vendaForm.reset();
+      },
+      error: (err) => {        
+        this.toast.erro(err.error.message);
+      }
+    });
+  }
+
+  mapearPayload(): any{
+    const venda = {
+      produtosVendidosInput: this.produtos.value.map((p: any) => ({
         idProduto: p.idProduto,
-        precoProduto: p.precoProduto,
+        precoProduto: p.valorUnitario,
         quantidade: p.quantidade,
-        valorPago: p.valorPago
+        valorPago: p.valorTotal,
+        desconto: 0 // ou calcule se existir
       })),
-      qtdeTotalItens: this.produtosSelecionados.value.reduce((acc: number, p: any) => acc + p.quantidade, 0),
+    
+      qtdeTotalItens: this.produtos.value.reduce(
+        (total: number, p: any) => total + p.quantidade,
+        0
+      ),
+    
       valorTotal: this.valorTotal,
-      vendaFormaPagamentoDTOs: this.formasPagamentoSelecionadas.value.map((f: any) => ({
+    
+      formaPagamentoInput: this.pagamentoForm.value.formas.map((f: any) => ({
         idFormaPagamento: f.idFormaPagamento,
-        valorPago: f.valorPago
+        valorPago: f.valor
       }))
     };
 
-    this.http.post('https://localhost:7280/api/v1/venda', payload).subscribe();
+    return venda;
   }
 }

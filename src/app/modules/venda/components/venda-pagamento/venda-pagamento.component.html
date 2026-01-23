@@ -1,0 +1,59 @@
+<div class="pagamento-container">
+  <h3>Formas de Pagamento</h3>
+
+  <div class="formas">
+    <mat-radio-group
+      [value]="formaSelecionada"
+      (change)="selecionarForma($event.value)"
+    >
+      <mat-radio-button *ngFor="let forma of formasPagamento" [value]="forma">
+        {{ forma.nome }}
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <!-- Input de valor (apenas para dinheiro) -->
+  <mat-form-field
+    *ngIf="formaSelecionada?.nome === 'Dinheiro'"
+    appearance="fill"
+  >
+    <mat-label>Valor recebido</mat-label>
+    <input
+      matInput
+      type="text"
+      (input)="PagarNoDinheiro($event)"
+      mask="separator.2"
+      prefix="R$ "
+      thousandSeparator="."
+      decimalMarker=","
+      [dropSpecialCharacters]="true"
+    />
+  </mat-form-field>
+
+  <mat-divider></mat-divider>
+
+  <div class="resumo">
+    <div>
+      Total da venda: <strong>{{ valorTotal | currency : "BRL" }}</strong>
+    </div>
+    <div>
+      Total recebido: <strong>{{ totalPago | currency : "BRL" }}</strong>
+    </div>
+
+    <div
+      class="diferenca"
+      [class.negativo]="diferenca < 0"
+      [class.positivo]="diferenca > 0 || diferenca === 0"
+    >
+      <ng-container *ngIf="diferenca < 0">
+        Falta pagar: {{ diferenca * -1 | currency : "BRL" }}
+      </ng-container>
+
+      <ng-container *ngIf="diferenca > 0">
+        Troco: {{ diferenca | currency : "BRL" }}
+      </ng-container>
+
+      <ng-container *ngIf="diferenca === 0"> Pagamento completo </ng-container>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,80 @@
+<div class="venda-container">
+  <h2>Registrar Venda</h2>
+
+  <fieldset>
+    <legend>Produto</legend>
+    <div [formGroup]="produtoForm">
+      <mat-form-field appearance="fill" class="full-width">
+        <input type="text" matInput placeholder="Buscar produto por nome ou código de barras" formControlName="produtoBusca" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="produtoForm.get('produto')?.setValue($event.option.value)" [displayWith]="displayProduto">
+          <mat-option *ngFor="let prod of produtosFiltrados$ | async" [value]="prod">
+            {{ prod.codigoBarras }} - {{ prod.nome }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <input type="number" matInput formControlName="quantidade" placeholder="Quantidade" min="1">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="adicionarProduto()">Adicionar Produto</button>
+    </div>
+  </fieldset>
+
+  <div class="grid">
+    <fieldset class="produtos">
+      <legend>Produtos Selecionados</legend>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Qtd</th>
+            <th>Valor Unitário</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prod of produtosSelecionados.controls; let i = index">
+            <td>{{ prod.value.codigoBarras }}</td>
+            <td>{{ prod.value.nome }}</td>
+            <td>{{ prod.value.quantidade }}</td>
+            <td>{{ prod.value.precoProduto | currency:'BRL' }}</td>
+            <td>{{ prod.value.valorPago | currency:'BRL' }}</td>
+            <td><button mat-icon-button color="warn" (click)="removerProduto(i)"><mat-icon>delete</mat-icon></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+
+    <fieldset class="valor-total">
+      <legend>Valor Total</legend>
+      <div class="total">{{ valorTotal | currency:'BRL' }}</div>
+    </fieldset>
+  </div>
+
+  <fieldset>
+    <legend>Formas de Pagamento</legend>
+    <div *ngFor="let forma of formasPagamento">
+      <label>
+        <input type="checkbox" (change)="toggleFormaPagamento(forma)" /> {{ forma.nome }}
+      </label>
+    </div>
+
+    <div *ngFor="let ctrl of formasPagamentoSelecionadas.controls">
+      Valor que será pago no {{ ctrl.get('nome')?.value }}:
+      <input
+        type="text"
+        [formControl]="getValorPagoControl(ctrl)"
+        mask="separator.2"
+        thousandSeparator="."
+        decimalMarker=","
+        prefix="R$ "
+      />
+
+    </div>
+  </fieldset>
+
+  <button mat-raised-button color="accent" (click)="enviarVenda()">Finalizar Venda</button>
+</div>

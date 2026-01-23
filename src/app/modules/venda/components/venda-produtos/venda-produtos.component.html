@@ -1,0 +1,53 @@
+<div class="produtos-container">
+
+    <mat-form-field appearance="fill" class="entrada-pdv">
+      <input
+        #entradaProduto
+        matInput
+        placeholder="Código de barras, nome ou qtd*código"
+        [formControl]="entradaControl"
+        (keyup.enter)="processarEntrada()"
+        [matAutocomplete]="auto"
+        autofocus
+      />
+  
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="selecionarProduto($event.option.value)"
+        [displayWith]="displayProduto">
+        <mat-option
+          *ngFor="let prod of produtosFiltrados$ | async"
+          [value]="prod">
+          {{ prod.codigoBarras }} - {{ prod.nome }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  
+    <table class="produtos-table" *ngIf="produtosSelecionados.length">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Produto</th>
+          <th>Qtd</th>
+          <th>Unit.</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ctrl of produtosSelecionados.controls; let i = index">
+          <td>{{ ctrl.value.codigoBarras }}</td>
+          <td>{{ ctrl.value.nome }}</td>
+          <td>{{ ctrl.value.quantidade }}</td>
+          <td>{{ ctrl.value.valorUnitario | currency:'BRL' }}</td>
+          <td>{{ ctrl.value.valorTotal | currency:'BRL' }}</td>
+          <td>
+            <button mat-icon-button color="warn" (click)="removerProduto(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+  </div>  
